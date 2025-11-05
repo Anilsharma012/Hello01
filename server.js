@@ -490,6 +490,28 @@ app.post('/api/admin/courses', adminAuth, async (req, res) => {
   }
 });
 
+// Toggle Publish Course (MUST come before generic :id route)
+app.put('/api/admin/courses/:id/toggle-publish', adminAuth, async (req, res) => {
+  try {
+    const course = await Course.findById(req.params.id);
+    if (!course) {
+      return res.status(404).json({ success: false, message: 'Course not found' });
+    }
+
+    course.published = !course.published;
+    course.updatedAt = Date.now();
+    await course.save();
+
+    res.json({
+      success: true,
+      message: course.published ? 'Course published' : 'Course unpublished',
+      course
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 // Update Course
 app.put('/api/admin/courses/:id', adminAuth, async (req, res) => {
   try {
@@ -512,28 +534,6 @@ app.delete('/api/admin/courses/:id', adminAuth, async (req, res) => {
   try {
     await Course.findByIdAndDelete(req.params.id);
     res.json({ success: true, message: 'Course deleted' });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
-
-// Toggle Publish Course
-app.put('/api/admin/courses/:id/toggle-publish', adminAuth, async (req, res) => {
-  try {
-    const course = await Course.findById(req.params.id);
-    if (!course) {
-      return res.status(404).json({ success: false, message: 'Course not found' });
-    }
-
-    course.published = !course.published;
-    course.updatedAt = Date.now();
-    await course.save();
-
-    res.json({
-      success: true,
-      message: course.published ? 'Course published' : 'Course unpublished',
-      course
-    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
