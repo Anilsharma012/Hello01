@@ -20,50 +20,61 @@ const CourseForm = ({ onClose, onSuccess, editData }) => {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
+    e.preventDefault();
+    setLoading(true);
 
-  const formData = new FormData();
-  formData.append("name", name);
-  formData.append("price", price);
-  formData.append("description", description);
+    try {
+      const token = localStorage.getItem("adminToken");
 
-  // Only add thumbnail if new file selected (edit case may have preview string)
-  if (typeof thumbnail === "object") {
-    formData.append("thumbnail", thumbnail);
-  }
+      let thumbnailData = null;
 
-  try {
-    const token = localStorage.getItem("adminToken");
+      // Convert file to base64 if new file selected
+      if (typeof thumbnail === "object" && thumbnail) {
+        thumbnailData = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.readAsDataURL(thumbnail);
+        });
+      } else if (editData?.thumbnail) {
+        // Keep existing thumbnail if no new file
+        thumbnailData = editData.thumbnail;
+      }
 
-    if (editData) {
-      // UPDATE existing course
-      await axios.put(`/api/admin/courses/${editData._id}`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      alert("✅ Course updated successfully!");
-    } else {
-      // CREATE new course
-      await axios.post("/api/admin/courses", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      alert("✅ Course added successfully!");
+      const courseData = {
+        name,
+        price: parseFloat(price),
+        description,
+        thumbnail: thumbnailData || preview
+      };
+
+      if (editData) {
+        // UPDATE existing course
+        await axios.put(`/api/admin/courses/${editData._id}`, courseData, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        alert("✅ Course updated successfully!");
+      } else {
+        // CREATE new course
+        await axios.post("/api/admin/courses", courseData, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        alert("✅ Course added successfully!");
+      }
+
+      onSuccess(); // Refresh + Close modal
+    } catch (err) {
+      console.error("Error:", err);
+      alert("❌ " + (err.response?.data?.message || "Something went wrong!"));
+    } finally {
+      setLoading(false);
     }
-
-    onSuccess(); // Refresh + Close modal
-  } catch (err) {
-    console.error("Error:", err);
-    alert("❌ Something went wrong!");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
 
   return (
