@@ -105,9 +105,10 @@ const AddCourse = () => {
             <div className="adminCourse-card" key={course._id}>
               <div className="adminCourse-image-wrap">
                 <img
-                  src={`/uploads/${course.thumbnail}`}
+                  src={course.thumbnail?.startsWith('data:') ? course.thumbnail : `/uploads/${course.thumbnail}`}
                   alt="Course Thumbnail"
                   className="adminCourse-image"
+                  onError={(e) => e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23ddd" width="200" height="200"/%3E%3Ctext x="50%" y="50%" text-anchor="middle" dy=".3em" fill="%23999" font-size="14"%3ENo Image%3C/text%3E%3C/svg%3E'}
                 />
                 <div
                   className="adminCourse-publish-icon"
