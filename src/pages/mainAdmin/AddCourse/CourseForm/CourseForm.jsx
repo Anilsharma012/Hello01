@@ -99,7 +99,7 @@ const CourseForm = ({ onClose, onSuccess, editData }) => {
 
           <div className="adminCourse-form-group">
             <label>Thumbnail</label>
-            <input type="file" onChange={handleThumbnail} required />
+            <input type="file" onChange={handleThumbnail} required={!editData} />
             {preview && <img src={preview} alt="Preview" className="adminCourse-thumb-preview" />}
           </div>
 
