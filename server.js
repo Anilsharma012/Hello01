@@ -517,6 +517,28 @@ app.delete('/api/admin/courses/:id', adminAuth, async (req, res) => {
   }
 });
 
+// Toggle Publish Course
+app.put('/api/admin/courses/:id/toggle-publish', adminAuth, async (req, res) => {
+  try {
+    const course = await Course.findById(req.params.id);
+    if (!course) {
+      return res.status(404).json({ success: false, message: 'Course not found' });
+    }
+
+    course.published = !course.published;
+    course.updatedAt = Date.now();
+    await course.save();
+
+    res.json({
+      success: true,
+      message: course.published ? 'Course published' : 'Course unpublished',
+      course
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 // ============ Mock Tests Routes ============
 
 app.get('/api/admin/mock-tests', adminAuth, async (req, res) => {
