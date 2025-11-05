@@ -472,9 +472,45 @@ app.get('/api/admin/courses', adminAuth, async (req, res) => {
 
 app.post('/api/admin/courses', adminAuth, async (req, res) => {
   try {
-    const course = new Course(req.body);
+    const { name, description, price, thumbnail } = req.body;
+
+    const course = new Course({
+      name,
+      description,
+      price,
+      thumbnail,
+      instructor: req.user._id
+    });
+
     await course.save();
     res.json({ success: true, course });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Update Course
+app.put('/api/admin/courses/:id', adminAuth, async (req, res) => {
+  try {
+    const { name, description, price, thumbnail } = req.body;
+
+    const course = await Course.findByIdAndUpdate(
+      req.params.id,
+      { name, description, price, thumbnail, updatedAt: Date.now() },
+      { new: true }
+    );
+
+    res.json({ success: true, course });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Delete Course
+app.delete('/api/admin/courses/:id', adminAuth, async (req, res) => {
+  try {
+    await Course.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'Course deleted' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
