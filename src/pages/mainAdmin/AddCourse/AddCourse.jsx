@@ -14,7 +14,7 @@ const AddCourse = () => {
   const fetchCourses = async () => {
     try {
       const token = localStorage.getItem("adminToken");
-      const res = await axios.get("/api/courses", {
+      const res = await axios.get("/api/admin/courses", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setCourses(res.data.courses);
@@ -38,7 +38,7 @@ const AddCourse = () => {
 
     try {
       const token = localStorage.getItem("adminToken");
-      await axios.delete(`/api/courses/${id}`, {
+      await axios.delete(`/api/admin/courses/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -62,7 +62,7 @@ const AddCourse = () => {
     try {
       const token = localStorage.getItem("adminToken");
       const res = await axios.put(
-        `/api/courses/toggle-publish/${courseId}`,
+        `/api/admin/courses/${courseId}/toggle-publish`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
