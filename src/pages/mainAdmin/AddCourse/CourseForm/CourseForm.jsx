@@ -38,7 +38,7 @@ const CourseForm = ({ onClose, onSuccess, editData }) => {
 
     if (editData) {
       // UPDATE existing course
-      await axios.put(`/api/courses/${editData._id}`, formData, {
+      await axios.put(`/api/admin/courses/${editData._id}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
@@ -47,7 +47,7 @@ const CourseForm = ({ onClose, onSuccess, editData }) => {
       alert("✅ Course updated successfully!");
     } else {
       // CREATE new course
-      await axios.post("/api/courses", formData, {
+      await axios.post("/api/admin/courses", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
