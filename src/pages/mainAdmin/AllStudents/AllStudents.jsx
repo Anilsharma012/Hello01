@@ -2,94 +2,103 @@ import React, { useEffect, useState } from "react";
 import AdminLayout from "../AdminLayout/AdminLayout";
 import axios from "axios";
 import "./AllStudents.css";
+import { toast } from "react-toastify";
 
 const AllStudents = () => {
   const [students, setStudents] = useState([]);
   const [editingStudent, setEditingStudent] = useState(null);
-const [editForm, setEditForm] = useState({
-  name: "",
-  email: "",
-  phoneNumber: "",
-  selectedCategory: "",
-  selectedExam: "",
-});
-
+  const [editForm, setEditForm] = useState({
+    name: "",
+    email: "",
+    phoneNumber: "",
+    selectedCategory: "",
+    selectedExam: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
-    const fetchStudents = async () => {
-      try {
-        const token = localStorage.getItem("adminToken");
-        const res = await axios.get("/api/admin/get-students", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setStudents(res.data.students);
-      } catch (error) {
-        console.error("Failed to fetch students:", error);
-      }
-    };
-
     fetchStudents();
-  }, []);
+  }, [page, search]);
 
-
-const handleEdit = (student) => {
-  setEditingStudent(student);
-  setEditForm({
-    name: student.name || "",
-    email: student.email || "",
-    phoneNumber: student.phoneNumber || "",
-    selectedCategory: student.selectedCategory || "",
-    selectedExam: student.selectedExam || "",
-  });
-};
-
-const handleUpdate = async () => {
-  try {
-    const token = localStorage.getItem("adminToken");
-    const res = await axios.put(
-      `/api/admin/update-student/${editingStudent._id}`,
-      editForm,
-      {
+  const fetchStudents = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("adminToken");
+      const res = await axios.get("/api/admin/students", {
+        params: { page, search, limit: 20 },
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
-    );
+      });
+      setStudents(res.data.students || []);
+      setTotal(res.data.total || 0);
+    } catch (error) {
+      console.error("Failed to fetch students:", error);
+      toast.error("Failed to load students");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const updated = res.data.student;
-
-    setStudents((prev) =>
-      prev.map((s) => (s._id === updated._id ? updated : s))
-    );
-    alert("Student updated successfully!");
-    setEditingStudent(null);
-  } catch (error) {
-    console.error("Update failed", error);
-    alert("Failed to update student.");
-  }
-};
-
-const handleDelete = async (id) => {
-  const confirm = window.confirm("Are you sure you want to delete this student?");
-  if (!confirm) return;
-
-  try {
-    const token = localStorage.getItem("adminToken");
-    await axios.delete(`/api/admin/delete-student/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+  const handleEdit = (student) => {
+    setEditingStudent(student);
+    setEditForm({
+      name: student.name || "",
+      email: student.email || "",
+      phoneNumber: student.phoneNumber || "",
+      selectedCategory: student.selectedCategory || "",
+      selectedExam: student.selectedExam || "",
     });
+  };
 
-    setStudents(prev => prev.filter(s => s._id !== id));
-    alert("Student deleted successfully!");
-  } catch (err) {
-    console.error("Delete failed", err);
-    alert("Something went wrong!");
-  }
-};
+  const handleUpdate = async () => {
+    try {
+      const token = localStorage.getItem("adminToken");
+      const res = await axios.put(
+        `/api/admin/students/${editingStudent._id}`,
+        editForm,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const updated = res.data.student;
+
+      setStudents((prev) =>
+        prev.map((s) => (s._id === updated._id ? updated : s))
+      );
+      toast.success("Student updated successfully!");
+      setEditingStudent(null);
+    } catch (error) {
+      console.error("Update failed", error);
+      toast.error("Failed to update student");
+    }
+  };
+
+  const handleDelete = async (id) => {
+    const confirm = window.confirm("Are you sure you want to delete this student?");
+    if (!confirm) return;
+
+    try {
+      const token = localStorage.getItem("adminToken");
+      await axios.delete(`/api/admin/students/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setStudents(prev => prev.filter(s => s._id !== id));
+      toast.success("Student deleted successfully!");
+    } catch (err) {
+      console.error("Delete failed", err);
+      toast.error("Failed to delete student");
+    }
+  };
 
 
 
