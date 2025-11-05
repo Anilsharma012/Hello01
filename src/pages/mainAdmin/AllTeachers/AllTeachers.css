@@ -10,14 +10,55 @@
 .page-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 30px;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.page-header > div {
+  flex: 1;
+  min-width: 250px;
 }
 
 .page-title {
   font-size: 28px;
   font-weight: 600;
   color: #0e0e2e;
+  margin-bottom: 15px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  background: white;
+  transition: border-color 0.2s ease;
+}
+
+.search-input:focus {
+  border-color: #0e0e2e;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(14, 14, 46, 0.1);
+}
+
+.loading-spinner {
+  text-align: center;
+  padding: 40px;
+  font-size: 16px;
+  color: #666;
+}
+
+.no-data {
+  background: white;
+  padding: 60px;
+  text-align: center;
+  border-radius: 12px;
+  color: #999;
+  font-size: 16px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
 }
 
 .create-btn {
