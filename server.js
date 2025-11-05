@@ -44,6 +44,7 @@ const courseSchema = new mongoose.Schema({
   description: String,
   instructor: mongoose.Schema.Types.ObjectId,
   price: Number,
+  thumbnail: String,
   published: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
