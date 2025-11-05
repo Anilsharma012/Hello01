@@ -103,109 +103,144 @@ const AllStudents = () => {
 
 
 
+  const totalPages = Math.ceil(total / 20);
+
   return (
     <AdminLayout>
       <div className="students-page">
-        <h1 className="page-title">All Registered Students</h1>
-      
-        <div className="student-table-wrapper">
-          <table className="student-table">
-            <thead>
-              <tr>
-                <th>Sr.No</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Category</th>
-                <th>Exam</th>
-                <th>Joined</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-           <tbody>
-  {students.map((student, index) => (
-    <tr key={student._id}>
-      <td>{index + 1}</td>
-      <td>{student.name}</td>
-      <td>{student.email}</td>
-      <td>{student.phoneNumber}</td>
-      <td>{student.selectedCategory || '-'}</td>
-      <td>{student.selectedExam || '-'}</td>
-      <td>{new Date(student.createdAt).toLocaleDateString()}</td>
-      <td className="action-icons">
-        <button
-          title="View"
-          onClick={() => window.location.assign(`/admin/students/${student._id}`)}
-          className="edit-btn"
-        >
-          👁️
-        </button>
-        <button
-          title="Edit"
-          onClick={() => handleEdit(student)}
-          className="edit-btn"
-        >
-          ✏️
-        </button>
-        <button
-          title="Delete"
-          onClick={() => handleDelete(student._id)}
-          className="delete-btn"
-        >
-          🗑️
-        </button>
-      </td>
-    </tr>
-  ))}
-</tbody>
-
-          </table>
+        <div className="students-header">
+          <h1 className="page-title">All Registered Students</h1>
+          <div className="students-search">
+            <input
+              type="text"
+              placeholder="Search by name, email, or phone..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              className="search-input"
+            />
+          </div>
         </div>
+
+        {loading && <div className="loading-spinner">Loading students...</div>}
+
+        {!loading && students.length === 0 ? (
+          <div className="no-data">No students found</div>
+        ) : (
+          <>
+            <div className="student-table-wrapper">
+              <table className="student-table">
+                <thead>
+                  <tr>
+                    <th>Sr.No</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Category</th>
+                    <th>Exam</th>
+                    <th>Joined</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {students.map((student, index) => (
+                    <tr key={student._id}>
+                      <td>{(page - 1) * 20 + index + 1}</td>
+                      <td>{student.name}</td>
+                      <td>{student.email}</td>
+                      <td>{student.phoneNumber || '-'}</td>
+                      <td>{student.selectedCategory || '-'}</td>
+                      <td>{student.selectedExam || '-'}</td>
+                      <td>{new Date(student.createdAt).toLocaleDateString()}</td>
+                      <td className="action-icons">
+                        <button
+                          title="Edit"
+                          onClick={() => handleEdit(student)}
+                          className="edit-btn"
+                        >
+                          ✏️
+                        </button>
+                        <button
+                          title="Delete"
+                          onClick={() => handleDelete(student._id)}
+                          className="delete-btn"
+                        >
+                          🗑️
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="pagination-controls">
+              <button
+                onClick={() => setPage(Math.max(1, page - 1))}
+                disabled={page === 1}
+                className="pagination-btn"
+              >
+                Previous
+              </button>
+              <span className="pagination-info">
+                Page {page} of {totalPages} • Total: {total} students
+              </span>
+              <button
+                onClick={() => setPage(Math.min(totalPages, page + 1))}
+                disabled={page === totalPages}
+                className="pagination-btn"
+              >
+                Next
+              </button>
+            </div>
+          </>
+        )}
       </div>
 
       {editingStudent && (
-  <div className="edit-modal">
-    <div className="edit-modal-content">
-      <h2>Edit Student</h2>
-      <label>Name:</label>
-      <input
-        type="text"
-        value={editForm.name}
-        onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-      />
-      <label>Email:</label>
-      <input
-        type="email"
-        value={editForm.email}
-        onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-      />
-      <label>Phone:</label>
-      <input
-        type="text"
-        value={editForm.phoneNumber}
-        onChange={(e) => setEditForm({ ...editForm, phoneNumber: e.target.value })}
-      />
-      <label>Category:</label>
-      <input
-        type="text"
-        value={editForm.selectedCategory}
-        onChange={(e) => setEditForm({ ...editForm, selectedCategory: e.target.value })}
-      />
-      <label>Exam:</label>
-      <input
-        type="text"
-        value={editForm.selectedExam}
-        onChange={(e) => setEditForm({ ...editForm, selectedExam: e.target.value })}
-      />
+        <div className="edit-modal">
+          <div className="edit-modal-content">
+            <h2>Edit Student</h2>
+            <label>Name:</label>
+            <input
+              type="text"
+              value={editForm.name}
+              onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+            />
+            <label>Email:</label>
+            <input
+              type="email"
+              value={editForm.email}
+              onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+            />
+            <label>Phone:</label>
+            <input
+              type="text"
+              value={editForm.phoneNumber}
+              onChange={(e) => setEditForm({ ...editForm, phoneNumber: e.target.value })}
+            />
+            <label>Category:</label>
+            <input
+              type="text"
+              value={editForm.selectedCategory}
+              onChange={(e) => setEditForm({ ...editForm, selectedCategory: e.target.value })}
+            />
+            <label>Exam:</label>
+            <input
+              type="text"
+              value={editForm.selectedExam}
+              onChange={(e) => setEditForm({ ...editForm, selectedExam: e.target.value })}
+            />
 
-      <div className="edit-actions">
-        <button onClick={handleUpdate}>Update</button>
-        <button className="cancel" onClick={() => setEditingStudent(null)}>Cancel</button>
-      </div>
-    </div>
-  </div>
-)}
-
+            <div className="edit-actions">
+              <button onClick={handleUpdate}>Update</button>
+              <button className="cancel" onClick={() => setEditingStudent(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </AdminLayout>
   );
 };
