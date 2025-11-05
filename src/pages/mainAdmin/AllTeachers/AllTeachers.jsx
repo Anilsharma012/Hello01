@@ -6,6 +6,7 @@ import axios from "axios";
 import "./AllTeachers.css";
 import { Dialog } from "@headlessui/react";
 import { FaPlus, FaTrashAlt, FaEdit } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 const AllTeachers = () => {
   const [teachers, setTeachers] = useState([]);
@@ -13,22 +14,32 @@ const AllTeachers = () => {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
-
-  const fetchTeachers = async () => {
-    try {
-      const token = localStorage.getItem("adminToken");
-      const res = await axios.get("/api/subadmin", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setTeachers(res.data.subAdmins);
-    } catch (error) {
-      console.error("Failed to fetch teachers:", error);
-    }
-  };
+  const [pageLoading, setPageLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     fetchTeachers();
-  }, []);
+  }, [page, search]);
+
+  const fetchTeachers = async () => {
+    setPageLoading(true);
+    try {
+      const token = localStorage.getItem("adminToken");
+      const res = await axios.get("/api/admin/teachers", {
+        params: { page, search, limit: 20 },
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setTeachers(res.data.teachers || []);
+      setTotal(res.data.total || 0);
+    } catch (error) {
+      console.error("Failed to fetch teachers:", error);
+      toast.error("Failed to load teachers");
+    } finally {
+      setPageLoading(false);
+    }
+  };
 
   const handleInput = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -38,20 +49,22 @@ const AllTeachers = () => {
 
     try {
       if (editingId) {
-        await axios.put(`/api/subadmin/${editingId}`, form, {
+        await axios.put(`/api/admin/teachers/${editingId}`, form, {
           headers: { Authorization: `Bearer ${token}` },
         });
+        toast.success("Teacher updated successfully");
       } else {
-        await axios.post("/api/subadmin/create", form, {
+        await axios.post("/api/admin/teachers", form, {
           headers: { Authorization: `Bearer ${token}` },
         });
+        toast.success("Teacher created successfully");
       }
       setIsOpen(false);
       setForm({ name: "", email: "", password: "" });
       setEditingId(null);
       fetchTeachers();
     } catch (err) {
-      alert("Failed: " + err.response?.data?.message || err.message);
+      toast.error(err.response?.data?.message || "Failed to save teacher");
     } finally {
       setLoading(false);
     }
@@ -64,19 +77,22 @@ const AllTeachers = () => {
   };
 
   const handleDelete = async (id) => {
-    const confirm = window.confirm("Are you sure to delete this SubAdmin?");
+    const confirm = window.confirm("Are you sure you want to delete this teacher?");
     if (!confirm) return;
 
     try {
       const token = localStorage.getItem("adminToken");
-      await axios.delete(`/api/subadmin/${id}`, {
+      await axios.delete(`/api/admin/teachers/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      toast.success("Teacher deleted successfully");
       fetchTeachers();
     } catch (err) {
-      alert("Delete failed: " + err.message);
+      toast.error("Delete failed: " + err.message);
     }
   };
+
+  const totalPages = Math.ceil(total / 20);
 
   return (
     <AdminLayout>
