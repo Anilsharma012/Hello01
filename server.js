@@ -142,10 +142,60 @@ const adminAuth = async (req, res, next) => {
 
 // ============ Routes ============
 
-// Health check
+// Health check endpoints
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'Server is running' });
 });
+
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', message: 'API server is running' });
+});
+
+// ============ Student/Public Routes ============
+
+// Get published courses for students
+app.get('/api/courses/student/published-courses', async (req, res) => {
+  try {
+    const courses = await Course.find({ published: true })
+      .select('name description price instructor createdAt')
+      .limit(20);
+
+    res.json({
+      success: true,
+      courses: courses
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Phone OTP endpoint
+app.post('/api/auth/phone/send-otp', async (req, res) => {
+  try {
+    const { phoneNumber } = req.body;
+
+    if (!phoneNumber) {
+      return res.status(400).json({ success: false, message: 'Phone number is required' });
+    }
+
+    // Generate a random OTP (in production, use a real SMS service like Twilio)
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // For demo purposes, just return success
+    // In production, send via SMS provider
+    console.log(`OTP for ${phoneNumber}: ${otp}`);
+
+    res.json({
+      success: true,
+      message: 'OTP sent successfully',
+      otp: otp // Remove in production!
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// ============ Admin Routes ============
 
 // Admin Login
 app.post('/api/admin/login', async (req, res) => {
