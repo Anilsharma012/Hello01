@@ -8,16 +8,21 @@
     "@fortawesome/fontawesome-free": "^6.7.2",
     "@headlessui/react": "^2.2.4",
     "axios": "^1.7.9",
+    "bcryptjs": "^3.0.3",
     "chart.js": "^4.5.0",
+    "cors": "^2.8.5",
     "cra-template": "1.2.0",
     "crypto-browserify": "^3.12.1",
-    "dotenv": "^16.4.7",
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0",
     "firebase": "^11.2.0",
     "framer-motion": "^12.4.4",
     "html2canvas": "^1.4.1",
     "jodit-react": "^5.2.19",
+    "jsonwebtoken": "^9.0.2",
     "jspdf": "^3.0.1",
     "lucide-react": "^0.513.0",
+    "mongoose": "^8.19.3",
     "os-browserify": "^0.3.0",
     "path-browserify": "^1.0.1",
     "quill": "^2.0.3",
@@ -40,25 +45,34 @@
     "start": "cross-env PORT=3003 react-scripts start",
     "start:frontend": "cross-env PORT=3003 react-scripts start",
     "start-win": "set PORT=3003 && react-scripts start",
-
     "dev": "npm run start:frontend",
     "dev-win": "npm run start-win",
     "dev:backend": "node server.js",
     "dev:backend:watch": "nodemon server.js",
     "dev:full": "concurrently -n frontend,backend -c blue,green \"npm run start:frontend\" \"npm run dev:backend:watch\"",
     "dev:full-win": "concurrently -n frontend,backend -c blue,green \"npm run start-win\" \"npm run dev:backend\"",
-
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "install:all": "npm install && npm install express mongoose cors dotenv bcryptjs jsonwebtoken nodemon"
   },
   "eslintConfig": {
-    "extends": ["react-app", "react-app/jest"]
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
   },
   "browserslist": {
-    "production": [">0.2%", "not dead", "not op_mini all"],
-    "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   },
   "proxy": "http://localhost:5000",
   "devDependencies": {
