@@ -159,7 +159,7 @@ app.get('/api/health', (req, res) => {
 app.get('/api/courses/student/published-courses', async (req, res) => {
   try {
     const courses = await Course.find({ published: true })
-      .select('name description price instructor createdAt')
+      .select('name description price thumbnail instructor createdAt')
       .limit(20);
 
     res.json({
