@@ -80,7 +80,7 @@ const CourseForm = ({ onClose, onSuccess, editData }) => {
   return (
     <div className="adminCourse-form-overlay">
       <div className="adminCourse-form-modal">
-        <h2 className="adminCourse-form-title">Add New Course</h2>
+        <h2 className="adminCourse-form-title">{editData ? "Edit Course" : "Add New Course"}</h2>
         <form onSubmit={handleSubmit} className="adminCourse-form">
           <div className="adminCourse-form-group">
             <label>Course Title</label>
