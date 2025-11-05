@@ -4,11 +4,87 @@
   min-height: 100vh;
 }
 
+.users-header {
+  margin-bottom: 30px;
+}
+
 .page-title {
   font-size: 28px;
   font-weight: 600;
-  margin-bottom: 25px;
+  margin-bottom: 20px;
   color: #343a40;
+}
+
+.users-filters {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.search-input,
+.role-select {
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  background: white;
+  transition: border-color 0.2s ease;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 250px;
+}
+
+.role-select {
+  min-width: 150px;
+}
+
+.search-input:focus,
+.role-select:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.loading-spinner {
+  text-align: center;
+  padding: 40px;
+  font-size: 16px;
+  color: #666;
+}
+
+.no-data {
+  background: white;
+  padding: 60px;
+  text-align: center;
+  border-radius: 12px;
+  color: #999;
+  font-size: 16px;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.role-badge.role-student {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.role-badge.role-teacher {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.role-badge.role-admin {
+  background-color: #f8d7da;
+  color: #721c24;
 }
 
 .user-table-wrapper {
