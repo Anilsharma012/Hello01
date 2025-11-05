@@ -98,47 +98,93 @@ const AllTeachers = () => {
     <AdminLayout>
       <div className="teachers-page">
         <div className="page-header">
-          <h1 className="page-title">All SubAdmins</h1>
-          <button className="create-btn" onClick={() => setIsOpen(true)}>
-            <FaPlus /> Create SubAdmin
+          <div>
+            <h1 className="page-title">All Teachers</h1>
+            <input
+              type="text"
+              placeholder="Search by name or email..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              className="search-input"
+            />
+          </div>
+          <button className="create-btn" onClick={() => {
+            setEditingId(null);
+            setForm({ name: "", email: "", password: "" });
+            setIsOpen(true);
+          }}>
+            <FaPlus /> Create Teacher
           </button>
         </div>
 
-        <div className="teacher-table-wrapper">
-          <table className="teacher-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Status</th>
-                <th>Created</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {teachers.map((teacher, index) => (
-                <tr key={teacher._id}>
-                  <td>{index + 1}</td>
-                  <td>{teacher.name || "-"}</td>
-                  <td>{teacher.email}</td>
-                  <td>{teacher.isActive ? "Active" : "Inactive"}</td>
-                  <td>{
-                    teacher.createdAt ? new Date(teacher.createdAt).toLocaleDateString() : "-"
-                  }</td>
-                  <td>
-                    <button className="edit-btn" onClick={() => handleEdit(teacher)}>
-                      <FaEdit />
-                    </button>
-                    <button className="delete-btn" onClick={() => handleDelete(teacher._id)}>
-                      <FaTrashAlt />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        {pageLoading && <div className="loading-spinner">Loading teachers...</div>}
+
+        {!pageLoading && teachers.length === 0 ? (
+          <div className="no-data">No teachers found</div>
+        ) : (
+          <>
+            <div className="teacher-table-wrapper">
+              <table className="teacher-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Category</th>
+                    <th>Exam</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {teachers.map((teacher, index) => (
+                    <tr key={teacher._id}>
+                      <td>{(page - 1) * 20 + index + 1}</td>
+                      <td>{teacher.name || "-"}</td>
+                      <td>{teacher.email}</td>
+                      <td>{teacher.phoneNumber || '-'}</td>
+                      <td>{teacher.selectedCategory || '-'}</td>
+                      <td>{teacher.selectedExam || '-'}</td>
+                      <td>{teacher.createdAt ? new Date(teacher.createdAt).toLocaleDateString() : "-"}</td>
+                      <td className="actions-cell">
+                        <button className="edit-btn" onClick={() => handleEdit(teacher)}>
+                          <FaEdit />
+                        </button>
+                        <button className="delete-btn" onClick={() => handleDelete(teacher._id)}>
+                          <FaTrashAlt />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="pagination-controls">
+              <button
+                onClick={() => setPage(Math.max(1, page - 1))}
+                disabled={page === 1}
+                className="pagination-btn"
+              >
+                Previous
+              </button>
+              <span className="pagination-info">
+                Page {page} of {totalPages} • Total: {total} teachers
+              </span>
+              <button
+                onClick={() => setPage(Math.min(totalPages, page + 1))}
+                disabled={page === totalPages}
+                className="pagination-btn"
+              >
+                Next
+              </button>
+            </div>
+          </>
+        )}
 
         <Dialog open={isOpen} onClose={() => {
           setIsOpen(false);
