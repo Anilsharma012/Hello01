@@ -10,7 +10,7 @@ const CourseForm = ({ onClose, onSuccess, editData }) => {
   const [price, setPrice] = useState(editData?.price || "");
   const [description, setDescription] = useState(editData?.description || "");
  const [thumbnail, setThumbnail] = useState(null);
- const [preview, setPreview] = useState(editData?.thumbnail ? `/uploads/${editData.thumbnail}` : null);
+ const [preview, setPreview] = useState(editData?.thumbnail ? (editData.thumbnail.startsWith('data:') ? editData.thumbnail : `/uploads/${editData.thumbnail}`) : null);
   const [loading, setLoading] = useState(false);
 
   const handleThumbnail = (e) => {
