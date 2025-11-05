@@ -16,6 +16,7 @@ const AdminDashboard = () => {
   const [classes, setClasses] = useState([]);
   const [payments, setPayments] = useState([]);
   const [alerts, setAlerts] = useState({ pendingInv:0, expiring:0 });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const now = new Date();
@@ -26,56 +27,50 @@ const AdminDashboard = () => {
         const token = localStorage.getItem('adminToken');
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
-        // Courses (public endpoint)
-        const coursesRes = await axios.get('/api/courses/student/published-courses');
-        const coursesCount = (coursesRes.data?.courses || []).length;
+        // Dashboard metrics from new backend
+        try {
+          const dashRes = await axios.get('/api/admin/dashboard', { headers });
+          if (dashRes.data?.success) {
+            const m = dashRes.data.metrics;
+            setMetrics({
+              users: m.users,
+              courses: m.courses,
+              teachers: m.teachers,
+              students: m.students,
+              enroll7: m.enroll7 || 0,
+              rev7: m.rev7 || 0
+            });
+          }
+        } catch (err) {
+          console.error('Dashboard fetch error:', err);
+        }
 
         // Payments 7d
-        const params = { startDate: start7.toISOString(), endDate: now.toISOString() };
-        let enrollCount = 0; let rev = 0; let payRows = [];
+        const params = { limit: 5 };
+        let payRows = [];
         try {
           const pr = await axios.get('/api/admin/payments', { headers, params });
           const list = pr.data?.payments || pr.data?.items || [];
-          enrollCount = list.filter(x => (x.status||'').toLowerCase()==='paid').length;
-          rev = list.filter(x=> (x.status||'').toLowerCase()==='paid').reduce((s,x)=> s + (Number(x.amount)||0), 0);
-          payRows = list.slice(0,5).map(x=>({ id:x._id, name:x.user?.name||x.studentName||'—', course:x.course?.name||x.courseName||'—', amount:x.amount, status:x.status||'unknown', at:x.createdAt }));
-        } catch {}
-
-        // Teachers
-        let teachersCount = null;
-        try { const tr = await axios.get('/api/subadmin', { headers }); teachersCount = (tr.data?.subAdmins||[]).length; } catch {}
-
-        // Students via purchased list
-        let studentsCount = null;
-        try { const sr = await axios.get('/api/admin/students-with-purchases', { headers }); studentsCount = (sr.data?.students||[]).length; } catch {}
-
-        // Upcoming classes
-        try {
-          const cr = await axios.get('/api/live-classes', { params: { limit: 10 } });
-          const items = cr.data?.items || cr.data || [];
-          const upcoming = items.filter(x => new Date(x.startTime||x.start||0) > now).sort((a,b)=> new Date(a.startTime||a.start) - new Date(b.startTime||b.start)).slice(0,3).map(x=>({ title: x.title || x.topic || 'Class', at: new Date(x.startTime||x.start).toLocaleString(), action: 'View' }));
-          setClasses(upcoming);
-        } catch { setClasses([]); }
-
-        setMetrics({ users: metrics.users, courses: coursesCount, teachers: teachersCount, students: studentsCount, enroll7: enrollCount, rev7: rev });
-        setPayments(payRows);
-
-        // Alerts
-        try {
-          const invs = await axios.get('/api/crm/invoices', { headers, params: { status: 'pending', limit: 5 } });
-          const pending = (invs.data?.items||[]).length;
-          setAlerts(a=>({ ...a, pendingInv: pending }));
-        } catch {}
-        try {
-          const enr = await axios.get('/api/admin/students-with-purchases', { headers });
-          const expiring = (enr.data?.students||[]).filter(u => (u.enrolledCourses||[]).some(c => c.expiresAt && (new Date(c.expiresAt)-now) < 30*24*60*60*1000)).length;
-          setAlerts(a=>({ ...a, expiring }));
-        } catch {}
-      } catch {}
+          payRows = list.slice(0, 5).map(x => ({
+            id: x._id,
+            name: x.studentId?.name || x.user?.name || '—',
+            course: x.courseId?.name || x.course?.name || '—',
+            amount: x.amount,
+            status: x.status || 'unknown',
+            at: x.createdAt
+          }));
+          setPayments(payRows);
+        } catch (err) {
+          console.error('Payments fetch error:', err);
+        }
+      } catch (err) {
+        console.error('Dashboard error:', err);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchAll();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const paymentCols = useMemo(() => ([
