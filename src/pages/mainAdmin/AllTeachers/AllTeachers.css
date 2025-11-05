@@ -190,14 +190,21 @@
 
 
 /* Action column buttons */
+.actions-cell {
+  display: flex;
+  gap: 8px;
+}
+
 .edit-btn,
 .delete-btn {
   border: none;
   background: none;
   cursor: pointer;
-  margin-right: 10px;
   font-size: 16px;
   transition: transform 0.2s ease;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
 }
 
 .edit-btn:hover,
@@ -212,4 +219,45 @@
 
 .delete-btn {
   color: #e00000;
+}
+
+/* Pagination controls */
+.pagination-controls {
+  margin-top: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+}
+
+.pagination-btn {
+  padding: 10px 16px;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background-color: #0e0e2e;
+  color: white;
+  border-color: #0e0e2e;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-info {
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
 }
