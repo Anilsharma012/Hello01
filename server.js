@@ -272,6 +272,59 @@ app.get('/api/admin/teachers', adminAuth, async (req, res) => {
   }
 });
 
+// Create Teacher
+app.post('/api/admin/teachers', adminAuth, async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+
+    // Check if teacher already exists
+    const existingTeacher = await User.findOne({ email });
+    if (existingTeacher) {
+      return res.status(400).json({ success: false, message: 'Email already exists' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const teacher = new User({
+      name,
+      email,
+      password: hashedPassword,
+      role: 'teacher'
+    });
+
+    await teacher.save();
+    res.json({ success: true, teacher: teacher.toObject() });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Update Teacher
+app.put('/api/admin/teachers/:id', adminAuth, async (req, res) => {
+  try {
+    const { name, email, phoneNumber, selectedCategory, selectedExam } = req.body;
+
+    const teacher = await User.findByIdAndUpdate(
+      req.params.id,
+      { name, email, phoneNumber, selectedCategory, selectedExam, updatedAt: Date.now() },
+      { new: true }
+    ).select('-password');
+
+    res.json({ success: true, teacher });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Delete Teacher
+app.delete('/api/admin/teachers/:id', adminAuth, async (req, res) => {
+  try {
+    await User.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'Teacher deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 // ============ All Users Routes ============
 
 app.get('/api/admin/users', adminAuth, async (req, res) => {
